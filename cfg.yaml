@@ -1,0 +1,81 @@
+num_per_origin_img: 24 # 生成图片的数量，默认1
+process_num: -1 # 进程数，-1为cpu核心数
+
+classes:
+  - "0_cola"
+  - "1_cake"
+  - "2_milk"
+  - "3_banana"
+  - "4_apple"
+  - "5_watermelon"
+  - "6_pepper"
+  - "7_tomato"
+  - "8_potato"
+
+paths:
+  data_root: "D:\\Desktop\\photo_data_maker-master"
+  back: "backs"
+  image: "images"
+  mark: "images_marked"
+  output: "output"
+  
+output:
+  enable_delete_existing: true
+  format: yolo
+  validation:
+    enable: fasle 
+  #   ratio: 0.2 # 验证集占比，0-1之间的浮动值，默认0.2
+  image_with_box:
+    enable: true
+    ratio: 0.2 # 验证集占比，0-1之间的浮动值，默认0.2
+
+
+# -----------------------------------------------------------------
+
+# 背景图片输出大小
+resize:
+  enable: true
+  height: 640
+  width: 480
+
+# 翻转配置
+flip:
+  enable: false
+  mode: 3  # 翻转模式，0不翻转，1仅随机x翻转，2仅随机y翻转，3随机多xy方向翻转
+
+# 亮度变换参数
+brightness:
+  enable_scale: false  # 亮度值的随机倍数（百分比）
+  scale: [0.8, 1.2]
+  enable_offset: false  # 亮度值的随机加数
+  offset: [0, 0]
+  output_range: [2, 254]  # 输出亮度值的范围
+
+# 
+RGB:
+  enable: false  
+  range: [0.6, 1.4]
+
+# 缩放
+size:
+  enable: true
+  range: [0.3, 0.8]   # 叠加图片在背景图像长宽占百分比
+
+# 模糊处理参数
+blur:
+  enable: false
+  range: [1, 3]   # 均值滤波范围，越大越模糊
+
+# --------------------------------------
+
+# 透视变换参数
+perspective:
+  # 随机宽度范围，指每个角位置变化距离占边长百分比，应介于0-0.5，数值越大随机范围越大
+  range: 0.0
+  # 变换对称模式，0即不对称，1为左右对称，2为上下对称。
+  # 以正方形为例，对称将只会把正方形透视变换为等腰梯形，左右对称则左右两边长度相等上下两边平行，上下对称则上下两边长度相等左右两边跑平行。
+  mode: 0
+  # 对称方向指定，仅当开启对称情况下有效，0即不指定。
+  # 若前一参数对称模式为1即左右对称，此参数为1表示等腰梯形上窄下宽，此参数为2反之.
+  # 若前一参数对称模式为2即上下对称，此参数为1表示等腰梯形左宽右窄，此参数为2反之.
+  direction: 0
