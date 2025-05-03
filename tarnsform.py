@@ -54,12 +54,12 @@ def random_flip(img, mode):
 
 def random_brightness(
     img: np.ndarray,
-    scale_range: tuple[float, float] = (0.7, 1.3),  # 亮度缩放范围 (min_scale, max_scale)，默认±30% (0.7~1.3)
-    offset_range: tuple[int, int] = (-50, 30),       # 亮度偏移范围 (min_offset, max_offset)，默认(-50, 30)
-    output_range: tuple[int, int] = (2, 254),        # 输出亮度范围 (min, max)，需满足 min ≤ max
-    apply_scale: bool = True,                        # 是否应用亮度缩放
-    apply_offset: bool = True                        # 是否应用亮度偏移
-) -> np.ndarray:
+    scale_range = (0.7, 1.3),  # 亮度缩放范围 (min_scale, max_scale)，默认±30% (0.7~1.3)
+    offset_range = (-50, 30),       # 亮度偏移范围 (min_offset, max_offset)，默认(-50, 30)
+    output_range = (2, 254),        # 输出亮度范围 (min, max)，需满足 min ≤ max
+    apply_scale = True,                        # 是否应用亮度缩放
+    apply_offset = True                        # 是否应用亮度偏移
+):
     """
     对图像进行灵活的随机亮度调整（支持缩放和偏移组合）
     
@@ -106,9 +106,9 @@ def random_brightness(
     return np.uint8(clipped)
 
 def random_channel_gain(
-    image: np.ndarray,
-    gain_range: tuple[float, float] = (0.6, 1.4)  # 通道增益范围 (min_gain, max_gain)，默认±40% (0.6~1.4)
-) -> np.ndarray:
+    image,
+    gain_range = (0.6, 1.4)  # 通道增益范围 (min_gain, max_gain)，默认±40% (0.6~1.4)
+):
     """
     对图像的RGB通道分别应用随机增益，实现色彩平衡调整
     

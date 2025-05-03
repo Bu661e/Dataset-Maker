@@ -1,8 +1,6 @@
 import multiprocessing
 import threading
-from sympy import im
 import yaml
-import os
 from pathlib import Path
 import tarnsform
 import cv2
@@ -202,16 +200,15 @@ def data_marker(img, img_marked, back):
     return back, xmin, ymin, xmax, ymax
 
 def maker(process_index, lock):
-    num = int(cfg['num_per_origin_img'] // process_num)
+    train_num = int(cfg['train_num_per_origin_img'] // process_num)
     images = [img for img in IMG_DIR.iterdir()]
     marks = [mark for mark in MARK_DIR.iterdir()]
     backs = [back for back in BACK_DIR.iterdir()]
-    output_format = cfg["output"]['format']
 
     if len(images) != len(marks):
         raise ValueError(f"图片文件夹{IMG_DIR}和标注文件夹{MARK_DIR}中的文件数量不一致")
     
-    print(f"process {process_index}: num = {num} images: {len(images)}, marks: {len(marks)}, backs: {len(backs)}")
+    # print(f"process {process_index}: train_num = {train_num}, images: {len(images)}, marks: {len(marks)}, backs: {len(backs)}")
     
     for image, mark in zip(images, marks):
         name = image.stem 
@@ -222,8 +219,8 @@ def maker(process_index, lock):
         
         image, mark = cv2.imread(str(image)), cv2.imread(str(mark))
 
-
-        for i in range(num):
+        # 训练集
+        for i in range(train_num):
             # 注意要使用copy()
             image_copy = image.copy()
             back = cv2.imread(str(random.choice(backs)))
@@ -256,6 +253,33 @@ def maker(process_index, lock):
             cv2.imwrite(str(image_with_box_path), image_copy)
 
 
+        # 验证集
+        if not cfg["output"]["validation"]["enable"]:
+            continue
+
+        val_num = int(train_num * cfg["output"]["validation"]["ratio"])
+        for i in range(val_num):
+            # 注意要使用copy()
+            image_copy = image.copy()
+            back = cv2.imread(str(random.choice(backs)))
+            image_copy, xmin, ymin, xmax, ymax = data_marker(image_copy, mark, back)
+
+            # 1. 写入image
+            image_path = OUT_DIR / 'val' / 'images' / cls / f"{name}_{process_index:02d}_{i:05d}.jpg"
+
+            cv2.imwrite(str(image_path), image_copy)
+
+            # 2. 写入label
+            label_path = OUT_DIR / 'val' / 'labels' / cls / f"{name}_{process_index:02d}_{i:05d}.txt"
+            y, x = image_copy.shape[:2]
+            if format == 'yolo':
+                txt = yolo_txt_maker(get_cls_index(cls), xmin, ymin, xmax, ymax, x, y)
+            else:
+                raise Exception('wrong label_type')
+            with open(str(label_path), 'w') as f:
+                f.write(txt)
+
+
 def main():
     # 1. 检查image和mark文件夹的内容是否符合要求
 
@@ -284,6 +308,8 @@ def main():
 
 
     end_time = time.time()
+    print("数据种类：", classes)
+    print(f"生成{cfg['train_num_per_origin_img'] * len(classes)}张训练集图片，{cfg['train_num_per_origin_img'] * cfg['output']['validation']['ratio'] * len(classes)}张验证集图片")
     print(f"总耗时：{end_time - start_time:.2f}秒")
 
 
